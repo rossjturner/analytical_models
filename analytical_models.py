@@ -185,7 +185,7 @@ def __scheuer_rk4(step, X, jet_power, opening_angle, regionPointer, betas, kValu
     __scheuer_equations(Y, K2, jet_power, opening_angle, regionPointer, betas, kValues, temperature)
     Y[:] = X[:] + 0.5*step*K2[:]
     __scheuer_equations(Y, K3, jet_power, opening_angle, regionPointer, betas, kValues, temperature)
-    Y[:] = X[:] + 0.5*step*K3[:]
+    Y[:] = X[:] + step*K3[:]
     __scheuer_equations(Y, K4, jet_power, opening_angle, regionPointer, betas, kValues, temperature)
     X[:] = X[:] + (step/6.)*(K1[:] + 2*K2[:] + 2*K3[:] + K4[:])
     
