@@ -1,5 +1,5 @@
 # analytical_models module
-# Ross Turner, 22 Mar 2023
+# Ross Turner, 13 Feb 2026
 
 # import packages
 import numpy as np
@@ -170,7 +170,7 @@ def __falle_rk4(step, X, jet_power, opening_angle, regionPointer, betas, kValues
     __falle_equations(Y, K2, jet_power, opening_angle, regionPointer, betas, kValues, temperature)
     Y[:] = X[:] + 0.5*step*K2[:]
     __falle_equations(Y, K3, jet_power, opening_angle, regionPointer, betas, kValues, temperature)
-    Y[:] = X[:] + step*K3[:]
+    Y[:] = X[:] + 0.5*step*K3[:]
     __falle_equations(Y, K4, jet_power, opening_angle, regionPointer, betas, kValues, temperature)
     X[:] = X[:] + (step/6.)*(K1[:] + 2*K2[:] + 2*K3[:] + K4[:])
 
@@ -185,7 +185,7 @@ def __scheuer_rk4(step, X, jet_power, opening_angle, regionPointer, betas, kValu
     __scheuer_equations(Y, K2, jet_power, opening_angle, regionPointer, betas, kValues, temperature)
     Y[:] = X[:] + 0.5*step*K2[:]
     __scheuer_equations(Y, K3, jet_power, opening_angle, regionPointer, betas, kValues, temperature)
-    Y[:] = X[:] + step*K3[:]
+    Y[:] = X[:] + 0.5*step*K3[:]
     __scheuer_equations(Y, K4, jet_power, opening_angle, regionPointer, betas, kValues, temperature)
     X[:] = X[:] + (step/6.)*(K1[:] + 2*K2[:] + 2*K3[:] + K4[:])
     
@@ -197,7 +197,7 @@ def __falle_equations(X, f, jet_power, opening_angle, regionPointer, betas, kVal
     omega = np.pi*(np.sin(opening_angle*np.pi/180.))**2
     epsilon = ((gammaC - 1)*(gammaX + 1)*(5 - betas[regionPointer])**3*jet_power/(18*(9*gammaC - 4 - betas[regionPointer])*kValues[regionPointer]*omega))**(1./3)
     
-    # Differential equations for X[0,1,2,3] = (time, radius, volume, pressure)
+    # Differential equations for X[0,1,2,3] = (time, radius, volume, internal energy)
     f[0] = 1.
     f[1] = 3/(5 - betas[regionPointer]) * X[1]**((betas[regionPointer] - 2)/3) * epsilon
     f[2] = 3*omega * X[1]**2 * f[1]
@@ -207,11 +207,11 @@ def __scheuer_equations(X, f, jet_power, opening_angle, regionPointer, betas, kV
     
     # find constants of proportionality
     omega = 2*np.pi*(1 - np.cos(opening_angle*np.pi/180.))
-    kappa_2 = 16*np.sqrt(np.pi*np.sqrt((omega*c_speed)**3*kValues[regionPointer]))/np.sqrt((14 - 5*betas[regionPointer])*(18 - 5*betas[regionPointer])*np.sqrt(jet_power)) * np.sqrt((gammaC - 1)*(equipartition + 1)/((14 - 5*betas[regionPointer])*(gammaC - 1)*(equipartition + 1) + 2*(4 - betas[regionPointer])))
+    kappa_2 = 16*np.sqrt(np.pi*np.sqrt((omega*c_speed)**3*kValues[regionPointer]))/np.sqrt((14 - betas[regionPointer])*(18 - betas[regionPointer])*np.sqrt(jet_power)) * np.sqrt((gammaC - 1)*(equipartition + 1)/((14 - betas[regionPointer])*(gammaC - 1)*(equipartition + 1) + 2*(4 - betas[regionPointer])))
     
-    # Differential equations for X[0,1,2,3] = (time, radius, volume, pressure)
+    # Differential equations for X[0,1,2,3] = (time, radius, volume, internal energy)
     f[0] = 1.
     f[1] = X[1]**((betas[regionPointer] - 2)/2) * np.sqrt(jet_power/(omega*kValues[regionPointer]*c_speed))
-    f[2] = kappa_2*((14 - 5*betas[regionPointer])/4) * X[1]**((10 - 5*betas[regionPointer])/4) * f[1]
-    f[3] = (4 - betas[regionPointer])/2 * np.sqrt(jet_power*omega*kValues[regionPointer]*c_speed)/(((14 - 5*betas[regionPointer])/4*(gammaC - 1)*(equipartition + 1) + (4 - betas[regionPointer])/2)) * X[1]**((2 - betas[regionPointer])/2) * f[1]
+    f[2] = kappa_2*((14 - betas[regionPointer])/4) * X[1]**((10 - betas[regionPointer])/4) * f[1]
+    f[3] = (4 - betas[regionPointer])/2 * np.sqrt(jet_power*omega*kValues[regionPointer]*c_speed)/(((14 - betas[regionPointer])/4*(gammaC - 1)*(equipartition + 1) + (4 - betas[regionPointer])/2)) * X[1]**((2 - betas[regionPointer])/2) * f[1]
 
